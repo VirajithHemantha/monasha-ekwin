@@ -47,11 +47,20 @@
 @layer base {
   body {
   @apply bg-[#FCFAF8] text-gray-800 antialiased;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100dvh;
   background-image: url('/444.png');
   background-size: cover;
-  background-attachment: fixed;
   background-position: center;
   background-repeat: no-repeat;
+  z-index: -1;
 }
 
   h1,

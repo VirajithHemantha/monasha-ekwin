@@ -19,7 +19,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AdminPage } from './components/AdminPage';
 
 function LandingPage() {
-  const [showIntro, setShowIntro] = useState(false);
+  const [showIntro, setShowIntro] = useState(true);
   const [showMain, setShowMain] = useState(true);
   const [isMusicPlaying, setIsMusicPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -44,8 +44,31 @@ function LandingPage() {
     }
   };
 
+  useEffect(() => {
+    const handleInteraction = () => {
+      if (audioRef.current && !isMusicPlaying) {
+        audioRef.current.play().catch(err => console.log("Audio play blocked: ", err));
+        setIsMusicPlaying(true);
+      }
+      // Remove listeners after first successful interaction
+      window.removeEventListener('click', handleInteraction);
+      window.removeEventListener('touchstart', handleInteraction);
+      window.removeEventListener('scroll', handleInteraction);
+    };
+
+    window.addEventListener('click', handleInteraction);
+    window.addEventListener('touchstart', handleInteraction);
+    window.addEventListener('scroll', handleInteraction);
+
+    return () => {
+      window.removeEventListener('click', handleInteraction);
+      window.removeEventListener('touchstart', handleInteraction);
+      window.removeEventListener('scroll', handleInteraction);
+    };
+  }, [isMusicPlaying]);
+
   return (
-    <div className="relative min-h-screen font-sans selection:bg-brand-gold selection:text-gray-900 overflow-x-hidden bg-transparent">
+    <div className="relative min-h-screen font-sans selection:bg-[#A68846] selection:text-[#111111] overflow-x-hidden bg-transparent">
       <FloatingPetals />
       
       {/* Background Music */}
@@ -56,7 +79,6 @@ function LandingPage() {
       />
 
       <AnimatePresence mode="wait">
-        {showIntro ? null : (
           <motion.main
             key="main"
             initial={{ opacity: 0 }}
@@ -67,10 +89,10 @@ function LandingPage() {
             {/* Music Toggle Button */}
             <button
               onClick={toggleMusic}
-              className="fixed bottom-8 right-8 z-[60] w-14 h-14 glass rounded-full flex items-center justify-center text-brand-gold-deep hover:bg-stone-800 hover:text-brand-champagne transition-all active:scale-90 shadow-2xl group"
+              className="fixed bottom-6 right-6 sm:bottom-8 sm:right-8 z-[60] w-12 h-12 sm:w-14 sm:h-14 bg-white/10 backdrop-blur-md border border-[#A68846]/30 rounded-full flex items-center justify-center text-[#A68846] hover:bg-[#A68846]/20 transition-all active:scale-90 shadow-lg group"
             >
-              <div className="absolute inset-0 rounded-full border border-brand-gold/20 scale-110 group-hover:scale-125 transition-transform" />
-              {isMusicPlaying ? <Volume2 className="w-6 h-6" /> : <VolumeX className="w-6 h-6" />}
+              <div className="absolute inset-0 rounded-full border border-[#A68846]/40 scale-110 group-hover:scale-125 transition-transform" />
+              {isMusicPlaying ? <Volume2 className="w-5 h-5 sm:w-6 sm:h-6" /> : <VolumeX className="w-5 h-5 sm:w-6 sm:h-6" />}
             </button>
 
 
@@ -93,7 +115,6 @@ function LandingPage() {
 
             <Footer />
           </motion.main>
-        )}
       </AnimatePresence>
     </div>
   );
