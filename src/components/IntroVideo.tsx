@@ -1,80 +1,63 @@
-import React, { useEffect, useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 
 interface IntroVideoProps {
   onComplete: () => void;
 }
 
-const images = [
-  '/2026.07.16-20260612T100209Z-3-001/my/RWP00532.jpg',
-  '/2026.07.16-20260612T100209Z-3-001/my/RWP00717.jpg',
-  '/2026.07.16-20260612T100209Z-3-001/my/RWP00916.jpg',
-  '/2026.07.16-20260612T100209Z-3-001/my/DSC01583.jpg',
-  '/2026.07.16-20260612T100209Z-3-001/my/RWP01402.jpg',
-  '/2026.07.16-20260612T100209Z-3-001/my/RWP01348.jpg',
-];
-
 export const IntroVideo: React.FC<IntroVideoProps> = ({ onComplete }) => {
-  const [phase, setPhase] = useState<'enter' | 'exit'>('enter');
+  const [hasStarted, setHasStarted] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
-  useEffect(() => {
-    // Images fall one by one. Hold them for a bit.
-    const exitTimer = setTimeout(() => {
-      setPhase('exit');
-    }, 4500);
-
-    // Call onComplete after exit animation finishes
-    const completeTimer = setTimeout(() => {
-      onComplete();
-    }, 5500);
-
-    return () => {
-      clearTimeout(exitTimer);
-      clearTimeout(completeTimer);
-    };
-  }, [onComplete]);
+  const startExperience = () => {
+    setHasStarted(true);
+    if (videoRef.current) {
+      videoRef.current.play().catch(e => console.error(e));
+    }
+  };
 
   return (
-    <div className="fixed inset-0 z-[200] bg-[#0a0a0a] flex items-center justify-center overflow-hidden">
+    <div className="fixed inset-0 z-[200] bg-black flex items-center justify-center overflow-hidden">
+      <video
+        ref={videoRef}
+        src="/opning.mp4"
+        className={`w-full h-full object-cover transition-opacity duration-1000 ${hasStarted ? 'opacity-100' : 'opacity-0'}`}
+        playsInline
+        onEnded={onComplete}
+      />
+      
       <AnimatePresence>
-        {images.map((src, index) => {
-          const rotations = [-12, 8, -6, 10, -8, 4];
-          const xOffsets = [-50, 40, -20, 30, -30, 10];
-          
-          return (
-            <motion.div
-              key={src}
-              initial={{ y: "-120vh", rotate: rotations[index], x: xOffsets[index], opacity: 1 }}
-              animate={{ 
-                y: phase === 'enter' ? 0 : "120vh", 
-                rotate: rotations[index], 
-                x: xOffsets[index] 
-              }}
-              transition={{
-                y: phase === 'enter' 
-                  ? { delay: index * 0.4, duration: 1.2, type: "spring", bounce: 0.3 }
-                  : { duration: 1, ease: "easeInOut" } // Exit simultaneously
-              }}
-              className="absolute w-64 h-80 sm:w-[28rem] sm:h-[36rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] bg-white p-3 sm:p-5 pb-8 sm:pb-12 rounded-sm"
-              style={{ zIndex: index + 10 }}
-            >
-              <div className="w-full h-full relative overflow-hidden rounded-sm">
-                <img src={src} alt={`Intro ${index}`} className="w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-black/10" />
-              </div>
-            </motion.div>
-          );
-        })}
+        {!hasStarted && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, transition: { duration: 1 } }}
+            className="absolute inset-0 flex items-center justify-center bg-[#111111] z-10"
+          >
+            <div className="absolute inset-0 pointer-events-none opacity-30" style={{ background: "radial-gradient(circle at center, #A68846 0%, transparent 70%)" }} />
+            <div className="relative z-10 text-center flex flex-col items-center">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-serif text-[#A68846] uppercase tracking-[0.2em] mb-10" style={{ textShadow: "0 0 20px rgba(166,136,70,0.5)" }}>
+                Monasha & Ekwin
+              </h1>
+              <button
+                onClick={startExperience}
+                className="px-10 py-4 bg-transparent border border-[#A68846] text-[#A68846] rounded-full uppercase tracking-[0.2em] text-sm hover:bg-[#A68846]/10 hover:scale-105 transition-all duration-300 shadow-[0_0_20px_rgba(166,136,70,0.3)]"
+              >
+                Open Invitation
+              </button>
+            </div>
+          </motion.div>
+        )}
       </AnimatePresence>
 
-      {/* Cinematic Background Elements */}
-      <div className="absolute inset-0 pointer-events-none z-0">
-        <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-black to-transparent opacity-80" />
-        <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-black to-transparent opacity-80" />
-      </div>
-
-
+      {hasStarted && (
+        <button 
+          onClick={onComplete}
+          className="absolute top-8 right-8 z-20 px-6 py-2 border border-white/30 text-white/70 hover:text-white hover:bg-white/10 rounded-full uppercase tracking-widest text-xs transition-colors"
+        >
+          Skip
+        </button>
+      )}
     </div>
   );
 };
-

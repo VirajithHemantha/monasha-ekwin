@@ -11,7 +11,7 @@ import { Timeline } from './components/Timeline';
 
 import { RSVPForm } from './components/RSVPForm';
 import { Footer } from './components/Footer';
-// Removed IntroVideo import
+import { IntroVideo } from './components/IntroVideo';
 
 import { HeroContent } from './components/HeroContent';
 import { CornerFlowers } from './components/CornerFlowers';
@@ -45,6 +45,8 @@ function LandingPage() {
   };
 
   useEffect(() => {
+    if (showIntro) return; // Wait until intro is done
+
     const handleInteraction = () => {
       if (audioRef.current && !isMusicPlaying) {
         audioRef.current.play().catch(err => console.log("Audio play blocked: ", err));
@@ -65,7 +67,13 @@ function LandingPage() {
       window.removeEventListener('touchstart', handleInteraction);
       window.removeEventListener('scroll', handleInteraction);
     };
-  }, [isMusicPlaying]);
+  }, [isMusicPlaying, showIntro]);
+
+  const handleVideoComplete = () => {
+    setShowIntro(false);
+    // Try to start music immediately after video ends
+    startMusic();
+  };
 
   return (
     <div className="relative min-h-screen font-sans selection:bg-[#A68846] selection:text-[#111111] overflow-x-hidden bg-transparent">
@@ -79,6 +87,9 @@ function LandingPage() {
       />
 
       <AnimatePresence mode="wait">
+        {showIntro ? (
+          <IntroVideo key="intro" onComplete={handleVideoComplete} />
+        ) : (
           <motion.main
             key="main"
             initial={{ opacity: 0 }}
@@ -115,6 +126,7 @@ function LandingPage() {
 
             <Footer />
           </motion.main>
+        )}
       </AnimatePresence>
     </div>
   );
