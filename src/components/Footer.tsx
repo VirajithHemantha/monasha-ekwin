@@ -43,9 +43,7 @@ export const Footer: React.FC = () => {
           </div>
         </div>
         
-        <p className="font-display mt-6 text-base sm:text-lg font-bold italic" style={{ color: "rgba(192,192,192, 0.62)" }}>
-          Gimhan Senanayeka &amp; Teneeshiya Nanayakkara
-        </p>
+
       </div>
     </footer>
   );
