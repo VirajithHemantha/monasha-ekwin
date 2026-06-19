@@ -1,0 +1,111 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { Music, Music2, Volume2, VolumeX } from 'lucide-react';
+import { FloatingPetals } from './components/FloatingPetals';
+
+import { Countdown } from './components/Countdown';
+import { Celebration } from './components/Celebration';
+import { NoteFromUs } from './components/NoteFromUs';
+import { Timeline } from './components/Timeline';
+// Removed Gallery import
+
+import { RSVPForm } from './components/RSVPForm';
+import { Footer } from './components/Footer';
+// Removed IntroVideo import
+
+import { HeroContent } from './components/HeroContent';
+import { CornerFlowers } from './components/CornerFlowers';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AdminPage } from './components/AdminPage';
+
+function LandingPage() {
+  const [showIntro, setShowIntro] = useState(false);
+  const [showMain, setShowMain] = useState(true);
+  const [isMusicPlaying, setIsMusicPlaying] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const weddingDate = new Date('2026-07-31T08:30:00');
+
+  const startMusic = () => {
+    if (audioRef.current && !isMusicPlaying) {
+      audioRef.current.play().catch(err => console.log("Audio play blocked: ", err));
+      setIsMusicPlaying(true);
+    }
+  };
+
+  const toggleMusic = () => {
+    if (audioRef.current) {
+      if (isMusicPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play().catch(err => console.log("Audio play blocked: ", err));
+      }
+      setIsMusicPlaying(!isMusicPlaying);
+    }
+  };
+
+  return (
+    <div className="relative min-h-screen font-sans selection:bg-brand-gold selection:text-gray-900 overflow-x-hidden bg-transparent">
+      <FloatingPetals />
+      
+      {/* Background Music */}
+      <audio
+        ref={audioRef}
+        src="/paulyudin-wedding-485932.mp3"
+        loop
+      />
+
+      <AnimatePresence mode="wait">
+        {showIntro ? null : (
+          <motion.main
+            key="main"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 2, ease: "easeInOut" }}
+            className="relative z-10"
+          >
+            {/* Music Toggle Button */}
+            <button
+              onClick={toggleMusic}
+              className="fixed bottom-8 right-8 z-[60] w-14 h-14 glass rounded-full flex items-center justify-center text-brand-gold-deep hover:bg-stone-800 hover:text-brand-champagne transition-all active:scale-90 shadow-2xl group"
+            >
+              <div className="absolute inset-0 rounded-full border border-brand-gold/20 scale-110 group-hover:scale-125 transition-transform" />
+              {isMusicPlaying ? <Volume2 className="w-6 h-6" /> : <VolumeX className="w-6 h-6" />}
+            </button>
+
+
+
+            <HeroContent />
+
+            <Timeline />
+
+            <Countdown targetDate={weddingDate} />
+
+            <Celebration />
+
+            <NoteFromUs />
+
+
+
+
+
+            <RSVPForm />
+
+            <Footer />
+          </motion.main>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+export default function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/admin" element={<AdminPage />} />
+      </Routes>
+    </Router>
+  );
+}
